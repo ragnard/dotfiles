@@ -39,7 +39,8 @@ set $up k
 set $right l
 
 set $term foot
-set $menu dmenu_path | fuzzel -d  -f 'Iosevka SS08' -w 80 -r 0 -x 16 -y 12 -I -p '' -b '11111bcc' -t 'ffffffaa' -m '00ff88ff' -s '000000dd' -S 'ffffffff' -M '00ff88ff' | xargs swaymsg exec --
+set $menu dmenu_path | fuzzel -d | xargs swaymsg exec --
+#set $menu dmenu_path | fuzzel -d  -f 'Iosevka SS08' -w 80 -r 0 -x 16 -y 12 -I -p '' -b '11111bcc' -t 'ffffffaa' -m '00ff88ff' -s '000000dd' -S 'ffffffff' -M '00ff88ff' | xargs swaymsg exec --
 
 set $lock swaylock -c '$base' --indicator-radius 128px --indicator-thickness 12px --font 'Iosevka SS08'
 
