@@ -64,7 +64,7 @@ client.unfocused        $crust   $crust    $surface2
 
 ### Output configuration
 #
-output * bg /usr/share/backgrounds/default.webp fill
+output * bg $HOME/.local/share/backgrounds/alien-mocha.webp fill
 
 input "type:keyboard" {
     xkb_layout se
