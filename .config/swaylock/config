@@ -1,0 +1,42 @@
+#show-keyboard-layout
+#hide-keyboard-layout
+#disable-caps-lock-text=
+#indicator-caps-lock=
+#scaling=
+#tiling=
+color=#11111b
+bs-hl-color=#eba0ac
+# caps-lock-bs-hl-color=
+# caps-lock-key-hl-color=
+font=Iosevka SS08
+font-size=24
+#indicator-idle-visible
+indicator-radius=128px
+indicator-thickness=12px
+inside-color=#11111b
+inside-clear-color=#11111b
+#inside-caps-lock-color=
+inside-ver-color=#11111b
+inside-wrong-color=#11111b
+key-hl-color=#a6e3a1
+#layout-bg-color=
+#layout-border-color=
+#layout-text-color=
+line-color=#1e1e2e
+line-clear-color=#1e1e2e
+#line-caps-lock-color=
+line-ver-color=#1e1e2e
+line-wrong-color=#1e1e2e
+#line-uses-inside
+#line-uses-ring
+ring-color=#1e1e2e
+ring-clear-color=#89dceb
+#ring-caps-lock-color=
+ring-ver-color=#fab387
+ring-wrong-color=#f38ba8
+#separator-color=
+text-color=#cdd6f4
+text-clear-color=#89dceb
+text-caps-lock-color=#cdd6f4
+text-ver-color=#fab387
+text-wrong-color=#f38ba8
