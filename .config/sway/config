@@ -39,6 +39,7 @@ input "type:keyboard" {
     bindsym $mod+shift+r exec swaymsg reload
     bindsym $mod+shift+g exec grimshot copy area
     bindsym $mod+l exec $lock
+    bindsym $mod+k exec $term k9s
 
     # Kill focused window
     bindsym $mod+Shift+q kill
