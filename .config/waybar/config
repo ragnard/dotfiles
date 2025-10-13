@@ -33,6 +33,7 @@
         "temperature",
         //"custom/keyboard-layout",
         "battery",
+        "pulseaudio",
         "tray",
         "clock#date",
         "clock#time"
