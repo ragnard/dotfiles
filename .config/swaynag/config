@@ -1,0 +1,19 @@
+font=Iosevka SS08 14
+
+# background=1e1e2e
+# text=cdd6f4
+# border=89b4fa
+# button-background=#313244
+# button-text=#cdd6f4
+# button-border=#89b4fa
+# details-background=#181825
+
+# [error]
+# layer=overlay
+# background=1e1e2e
+# text=cdd6f4
+# border=f38ba8
+# button-background=1e1e2e
+# button-text=cdd6f4
+# button-border=f38ba8
+# details-background=181825

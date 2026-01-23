@@ -1,0 +1,13 @@
+font=Iosevka SS08
+default-timeout=4000
+width=500
+border-size=1
+icons=0
+
+background-color=#1e1e2e
+text-color=#cdd6f4
+border-color=#89dceb
+progress-color=over #313244
+
+[urgency=high]
+border-color=#fab387

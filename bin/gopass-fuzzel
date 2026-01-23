@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Dependencies: gopass, fuzzel, wl-copy (wl-clipboard)
+
+# List gopass entries (no "Password Store" heading, only paths)
+secrets="$(gopass ls -f)"
+
+# Pick one via fuzzel
+secret="$(printf '%s\n' "$secrets" | fuzzel --dmenu -p 'Secret: ')" || exit 0
+[[ -z "${secret}" ]] && exit 0
+
+# Copy first line of secret (typical password-store convention)
+output="$(gopass show -c "$secret")"
