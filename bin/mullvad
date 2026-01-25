@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+
+RELAYS_FILE="$HOME/.local/share/mullvad/relays.json"
+
+cmd_update() {
+    mkdir -p "$(dirname "$RELAYS_FILE")"
+    curl -s "https://api.mullvad.net/app/v1/relays" -o "$RELAYS_FILE"
+    echo "Relays updated: $RELAYS_FILE"
+}
+
+ensure_relays() {
+    if [[ ! -f "$RELAYS_FILE" ]]; then
+        echo "Relays file not found, updating..." >&2
+        cmd_update
+    fi
+}
+
+cmd_list() {
+    ensure_relays
+    jq -r '.wireguard.relays[] | select(.active) | .hostname' "$RELAYS_FILE"
+}
+
+cmd_use() {
+    local iface="$1"
+    local relay="$2"
+    if [[ -z "$iface" || -z "$relay" ]]; then
+        echo "Usage: mullvad use <interface> <relay-name>" >&2
+        exit 1
+    fi
+    ensure_relays
+
+    # Look up relay info
+    local relay_info
+    relay_info=$(jq -r --arg h "$relay" '.wireguard.relays[] | select(.hostname == $h)' "$RELAYS_FILE")
+    if [[ -z "$relay_info" ]]; then
+        echo "Relay '$relay' not found" >&2
+        exit 1
+    fi
+
+    local public_key endpoint
+    public_key=$(echo "$relay_info" | jq -r '.public_key')
+    endpoint=$(echo "$relay_info" | jq -r '.ipv4_addr_in + ":51820"')
+
+    # Remove existing peers
+    for peer in $(sudo wg show "$iface" peers); do
+        if ! sudo wg set "$iface" peer "$peer" remove; then
+            echo "Failed to remove peer $peer" >&2
+            exit 1
+        fi
+    done
+
+    # Add new peer
+    if ! sudo wg set "$iface" peer "$public_key" endpoint "$endpoint" allowed-ips 0.0.0.0/0,::/0; then
+        echo "Failed to set peer" >&2
+        exit 1
+    fi
+    echo "Switched to $relay ($endpoint)"
+    notify-send "Mullvad" "Switched to $relay"
+}
+
+cmd_pick() {
+    local iface="$1"
+    if [[ -z "$iface" ]]; then
+        echo "Usage: mullvad pick <interface>" >&2
+        exit 1
+    fi
+    ensure_relays
+    local relay
+    relay=$(cmd_list | fuzzel -d)
+    if [[ -n "$relay" ]]; then
+        cmd_use "$iface" "$relay"
+    fi
+}
+
+case "$1" in
+    update)
+        cmd_update
+        ;;
+    list)
+        cmd_list
+        ;;
+    use)
+        cmd_use "$2" "$3"
+        ;;
+    pick)
+        cmd_pick "$2"
+        ;;
+    *)
+        echo "Usage: mullvad {update|list|pick <interface>|use <interface> <relay>}" >&2
+        exit 1
+        ;;
+esac
