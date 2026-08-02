@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Sway helpers for Claude Code.
+#
+#   claude-sway spawn           pick a project with fuzzel, start a background session
+#   claude-sway agents          toggle the `claude agents` workspace
+#   claude-sway open-in-emacs   pick a session's directory, open it in emacs
+#
+# Dependencies: sway, foot, fd, fuzzel, jq, claude, emacsclient,
+#               notify-send (libnotify)
+#
+# Sway's exec env is a bare PATH=/usr/local/bin:/usr/bin, but everything this
+# script calls itself lives in /usr/bin. Only claude needs more, so it is run
+# through a login shell: the session then gets the same environment it would
+# have been started with from a terminal. That costs ~200ms, paid only on the
+# paths that actually launch claude — toggling and the picker stay instant.
+
+readonly APP_ID=claude-agents
+readonly WS=agents
+
+spawn() {
+    local dirs dir output
+
+    # List project directories (same set as the `sd` shell function)
+    dirs="$(fd --type d --max-depth 3 . ~/projects)"
+
+    # Pick one via fuzzel
+    dir="$(printf '%s\n' "$dirs" | fuzzel --dmenu -p 'Start claude session in: ')" || exit 0
+    [[ -z "$dir" ]] && exit 0
+
+    # --bg has no directory flag; the session inherits the working directory
+    cd "$dir"
+    output="$(bash -lc 'claude --bg' 2>&1)"
+
+    # Launched from a hotkey there is no terminal, so report via notification
+    notify-send 'Claude session started' \
+        "${dir/#$HOME/\~}"$'\n'"$(sed 's/\x1b\[[0-9;]*m//g' <<<"$output" | head -1)"
+}
+
+agents() {
+    # workspace_auto_back_and_forth makes this a toggle: switching to the
+    # workspace we are already on returns us to the previous one.
+    swaymsg workspace "$WS" >/dev/null
+
+    # First use: launch it. for_window keeps it on this workspace.
+    # Matched without a pipe on purpose: `... | grep -q` races with pipefail,
+    # since grep exits early and swaymsg then dies on SIGPIPE.
+    [[ "$(swaymsg -t get_tree)" == *"\"app_id\": \"$APP_ID\""* ]] ||
+        exec foot --app-id "$APP_ID" bash -lc 'claude agents'
+}
+
+open_in_emacs() {
+    local dirs dir
+
+    # One entry per directory, however many sessions share it
+    dirs="$(jq -r '.cwd // empty' "$HOME"/.claude/sessions/*.json 2>/dev/null | sort -u)"
+    [[ -z "$dirs" ]] && exit 0
+
+    dir="$(printf '%s\n' "$dirs" | fuzzel --dmenu -p 'Open in emacs: ')" || exit 0
+    [[ -z "$dir" ]] && exit 0
+
+    # -a "" starts the daemon if it is not already running
+    emacsclient -n -c -a "" "$dir"
+}
+
+case "${1-}" in
+    spawn)          spawn ;;
+    agents)         agents ;;
+    open-in-emacs)  open_in_emacs ;;
+    *)              printf 'Usage: %s {spawn|agents|open-in-emacs}\n' "${0##*/}" >&2; exit 1 ;;
+esac

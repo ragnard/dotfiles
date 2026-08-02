@@ -61,6 +61,7 @@
 #clock,
 #cpu,
 #custom-keyboard-layout,
+#custom-mullvad,
 #memory,
 #mode,
 #network,
@@ -136,6 +137,14 @@
     background: @crust;
     /* To compensate for the top border and still have vertical centering */
     padding-bottom: 2px;
+}
+
+#custom-mullvad.connected {
+    color: @green;
+}
+
+#custom-mullvad.disconnected {
+    color: @red;
 }
 
 #network {

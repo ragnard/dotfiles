@@ -55,7 +55,17 @@ cmd_use() {
         exit 1
     fi
     echo "Switched to $relay ($endpoint)"
-    notify-send "Mullvad" "Switched to $relay"
+    command -v notify-send >/dev/null 2>&1 && notify-send "Mullvad" "Switched to $relay" || true
+}
+
+cmd_waybar_status() {
+    local flags_file="/sys/class/net/wg-mullvad/flags"
+    # Interface up? IFF_UP is bit 0 of the flags word; readable without root.
+    if [[ -r "$flags_file" ]] && (( $(< "$flags_file") & 1 )); then
+        echo '{"text": "VPN", "class": "connected"}'
+    else
+        echo '{"text": "No VPN", "class": "disconnected"}'
+    fi
 }
 
 cmd_pick() {
@@ -85,8 +95,11 @@ case "$1" in
     pick)
         cmd_pick "$2"
         ;;
+    waybar-status)
+        cmd_waybar_status
+        ;;
     *)
-        echo "Usage: mullvad {update|list|pick <interface>|use <interface> <relay>}" >&2
+        echo "Usage: mullvad {update|list|pick <interface>|use <interface> <relay>|waybar-status}" >&2
         exit 1
         ;;
 esac
